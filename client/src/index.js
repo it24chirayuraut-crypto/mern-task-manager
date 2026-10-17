@@ -42,6 +42,16 @@ app.delete('/api/tasks/:id', async (req, res) => {
   await Task.findByIdAndDelete(req.params.id);
   res.json({ ok: true });
 });
+app.put('/api/tasks/:id', async (req, res) => {
+  const { title, done } = req.body;
+  const task = await Task.findByIdAndUpdate(
+    req.params.id,
+    { title, done },
+    { new: true, runValidators: true }
+  );
+  if (!task) return res.status(404).json({ error: 'Task not found' });
+  res.json(task);
+});
 
 const PORT = process.env.PORT || 5000;
 mongoose

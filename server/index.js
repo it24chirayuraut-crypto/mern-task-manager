@@ -10,7 +10,10 @@ app.use(express.json());
 const Task = mongoose.model(
   'Task',
   new mongoose.Schema(
-    { title: { type: String, required: true }, done: { type: Boolean, default: false } },
+    {
+      title: { type: String, required: true },
+      done: { type: Boolean, default: false },
+    },
     { timestamps: true }
   )
 );
@@ -24,6 +27,26 @@ app.get('/api/tasks', async (req, res) => {
 app.post('/api/tasks', async (req, res) => {
   const task = await Task.create({ title: req.body.title });
   res.status(201).json(task);
+});
+
+app.put('/api/tasks/:id', async (req, res) => {
+  const { title, done } = req.body;
+  const task = await Task.findByIdAndUpdate(
+    req.params.id,
+    { title, done },
+    { new: true, runValidators: true }
+  );
+  if (!task) return res.status(404).json({ error: 'Task not found' });
+  res.json(task);
+});
+
+app.patch('/api/tasks/:id', async (req, res) => {
+  const task = await Task.findByIdAndUpdate(
+    req.params.id,
+    { done: req.body.done },
+    { new: true }
+  );
+  res.json(task);
 });
 
 app.delete('/api/tasks/:id', async (req, res) => {
